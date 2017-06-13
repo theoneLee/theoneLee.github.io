@@ -1,0 +1,767 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css"/>
+
+
+
+
+  <link href="//fonts.googleapis.com/css?family=Lato:300,400,700,400italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=0.5.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=0.5.0" />
+
+
+
+
+
+
+<meta name="description" content="几个基本概念
+为什么需要并发？这些年。并发。多线程这些词不绝于耳。感觉现在没有没有搭上这些词都感觉落后了。但是想专注学一个东西时要先搞清为什么。那么。为什么需要并发？我看过一些资料上有几个原因。但我个人偏看好以下这点是主要原因。由于硬件的发展。近年来的cpu主频已经到达了瓶颈。为了提高性能。而转向多核的集成。这时候把传统串行程序改造成串行+并行的程序（并行部分就能够合理利用多核的优势）。那有哪些领">
+<meta property="og:type" content="article">
+<meta property="og:title" content="大娃写点什么。">
+<meta property="og:url" content="http://yoursite.com/2017/06/12/concurrentPrograming/index.html">
+<meta property="og:site_name" content="大娃写点什么。">
+<meta property="og:description" content="几个基本概念
+为什么需要并发？这些年。并发。多线程这些词不绝于耳。感觉现在没有没有搭上这些词都感觉落后了。但是想专注学一个东西时要先搞清为什么。那么。为什么需要并发？我看过一些资料上有几个原因。但我个人偏看好以下这点是主要原因。由于硬件的发展。近年来的cpu主频已经到达了瓶颈。为了提高性能。而转向多核的集成。这时候把传统串行程序改造成串行+并行的程序（并行部分就能够合理利用多核的优势）。那有哪些领">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/2007249-3ca3abb55b761464.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/2007249-a7244f3841b61282.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/2007249-31c495f28a7a08dc.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/2007249-181ab0558c017a73.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:image" content="http://upload-images.jianshu.io/upload_images/2007249-1a06977c35a3dbed.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+<meta property="og:updated_time" content="2017-06-13T13:28:54.303Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="大娃写点什么。">
+<meta name="twitter:description" content="几个基本概念
+为什么需要并发？这些年。并发。多线程这些词不绝于耳。感觉现在没有没有搭上这些词都感觉落后了。但是想专注学一个东西时要先搞清为什么。那么。为什么需要并发？我看过一些资料上有几个原因。但我个人偏看好以下这点是主要原因。由于硬件的发展。近年来的cpu主频已经到达了瓶颈。为了提高性能。而转向多核的集成。这时候把传统串行程序改造成串行+并行的程序（并行部分就能够合理利用多核的优势）。那有哪些领">
+<meta name="twitter:image" content="http://upload-images.jianshu.io/upload_images/2007249-3ca3abb55b761464.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title>  | 大娃写点什么。 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta custom-logo">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">大娃写点什么。</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-user fa-fw"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-06-12T22:14:59+08:00" content="2017-06-12">
+              2017-06-12
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="几个基本概念"><a href="#几个基本概念" class="headerlink" title="几个基本概念"></a>几个基本概念</h2><ul>
+<li><p>为什么需要并发？<br>这些年。并发。多线程这些词不绝于耳。<br>感觉现在没有没有搭上这些词都感觉落后了。但是想专注学一个东西时要先搞清为什么。<br>那么。为什么需要并发？<br>我看过一些资料上有几个原因。但我个人偏看好以下这点是主要原因。<br>由于硬件的发展。近年来的cpu主频已经到达了瓶颈。为了提高性能。而转向多核的集成。这时候把传统串行程序改造成串行+并行的程序（并行部分就能够合理利用多核的优势）。<br>那有哪些领域需要这些性能呢？<br>毫无疑问，就是计算量大，访问量大的领域需要这些性能。自然而然也就是图像处理和服务端了。<br>除了服务端和图像处理领域。其他领域不建议使用并发编程。毕竟并发编程就是典型的把简单问题复杂化的做法。</p>
+</li>
+<li><p>概念之间的关系</p>
+</li>
+</ul>
+<p><img src="http://upload-images.jianshu.io/upload_images/2007249-3ca3abb55b761464.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="概念关系图"></p>
+<ul>
+<li><p>并发、并行<br>并发：在单核处理器上实现多线程编程，即多个任务一起执行，表面上我们感受到是一起执行的，但实际上是交替执行的（串行）<br>并行：在多核处理器上能把并发上交替执行的部分变成同时执行。</p>
+</li>
+<li><p>同步、异步<br>同步：主线程在同步调用时，只有等到子线程线程完成方法调用返回后，主线程才能开始下面的任务。<br>异步：异步调用时，主线程会开辟一个单独的线程来处理这个任务，然后直接处理主线程接下来的任务，而不等待子线程调用返回</p>
+</li>
+<li><p>同步、互斥<br>在操作系统课上。谈到进程时就有讲到进程之间的关系，同步和互斥。作为『轻量级的进程』–线程，同样也有这样的关系。具体概念如下：<br>互斥：在一个线程执行某一任务时，不允许其他线程一起来执行这个任务，只能等待他执行完成才能接着执行该任务<br>同步：多个线程之间按照规定的次序来执行一项任务，在某一线程运行期间同样具有排他性（即是一种更为复杂的互斥）。这里和上面同步的概念并没有矛盾。只是看待角度不一样。其实是同一个东西。</p>
+</li>
+<li><p>临界区<br>表示一种共享资源/数据。在多线程环境中，临界资源应该只有一个线程能调用他，其他线程必须等待其释放这个资源。</p>
+</li>
+<li><p>堵塞、非堵塞<br>由于临界区的存在，并发需要得到控制。也就有了堵塞的概念。<br>堵塞：一个线程被堵塞，那么在其他线程释放资源前，他是无法运行的。<br>非堵塞：具有三种级别：无障碍，无锁，无等待。（非堵塞级别逐步增高）。他们之间的差别这里不谈，只是会说下非堵塞是采取某些手段使得临界区资源可以被多个线程同时访问，某种意义上提高了程序的并行比例（注1），从而提高性能。</p>
+</li>
+<li><p>死锁、饥饿<br>由于临界区的存在，线程需要等待，在等待时会出现以下情况：<br>死锁：线程a持有临界资源1，并且需要临界资源2才能处理接下来的任务，与此同时，线程b持有临界资源2，并且需要临界资源1才能处理接下来的任务。这个时候两个线程彼此都在等待，就产生了死锁。<br>饥饿：解释饥饿需要引入线程的优先级，对于优先级高的线程会被优先处理，而导致优先级低的线程一直处于等待状态。这时候就是饥饿。</p>
+</li>
+</ul>
+<h2 id="多线程的协作"><a href="#多线程的协作" class="headerlink" title="多线程的协作"></a>多线程的协作</h2><h4 id="基本操作"><a href="#基本操作" class="headerlink" title="基本操作"></a>基本操作</h4><ul>
+<li><p>wait、notify、notifyAll<br>在synchronized块中，一个线程A在处理一个临界资源对象object可以调用wait（为了协调多个线程之间的工作），object.wait();这个时候线程A被置入object的等待队列，并且释放object的锁，另外一个线程B由于临界资源的没有被占用，自然也是可以取得该object来做相应的处理，这时候线程B由于业务上的需要可以通知线程A继续任务时，就可以调用object.notifyAll();或者object.notify();（在明确等待队列只有一个时。）。值得注意的是。线程B调用这个函数的同时，并不会马上释放object的锁，而是要等到线程B执行完毕后才会释放，也就是说线程A要等到线程B完全执行完任务后才能被唤醒。</p>
+</li>
+<li><p>interrupt、sleep<br>interrupt：一个线程调用这个方法并不会直接使其退出，而是给该线程发送一个退出的消息，至于什么时候退出由线程自己决定。<br>sleep：让当前线程休眠一段时间</p>
+</li>
+<li><p>join<br>在main函数中，若新建一个线程A并执行，然后要等待A执行完得到某些结果，main函数根据这些结果才接着执行，这时候就可以在main函数中接着调用a.join();。这样就能完成上述需求。<br>同样。在A线程需要其他多个线程，例如B，C，D线程的处理结果时，可以在A线程创建好BCD线程并start这些线程后，调用b.join();c.join();d.join();即可</p>
+</li>
+</ul>
+<h4 id="jdk提供的工具"><a href="#jdk提供的工具" class="headerlink" title="jdk提供的工具"></a>jdk提供的工具</h4><p>一般开发过程中，不会直接使用上述基本方法，而是直接使用jdk提供的工具。这些工具让我们更好的去处理并发问题。</p>
+<ul>
+<li>ReentrantLock、Condition<br>这两个东西分别代替synchronized和wait，notify。<br>在一个实现了Runnable的类A中，可以创建一个ReentrantLock lock，当多个实现类A的线程对象在操作临界资源前，可以使用lock.lock();来加锁，主要要在try-catch-finally块中的finally部分调用lock.unlock();来解锁，否则其他线程无法取得锁进而一直处于等待状态。</li>
+</ul>
+<p>在上述情景中，lock.newCondition()可以取得一个Contition c对象，这个对象具有c.await();和c.signal()、c.signalAll()方法，对应wait，notify，notifyAll</p>
+<ul>
+<li>ReadWriteLock<br>读写锁是非堵塞的概念的一个实现，他能够让多个线程访问临界资源时的读与读操作之间不堵塞。但是写-写，读-写，写-读这三个方面仍然是堵塞的。<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">ReentrantReadWriteLock lock=<span class="keyword">new</span> ReentrantReadWriteLock(); </div><div class="line">lock.readLock();</div><div class="line">lock.writeLock();</div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>可以分别取得读锁和写锁。</p>
+<p>具体使用可以参考<br>Java并发编程实战P236<br>实战Java高并发程序设计的p85<br>JDK8 API中java.util.concurrent.locks包下的ReentrantReadWriteLock类中的sample demo<br>（ReentrantLock的使用和这个没有基本差别，至于Condition部分也请自行找具体demo，在下面参考资料上都有基本的用法实例。之后的内容也一样。）</p>
+<h2 id="线程池"><a href="#线程池" class="headerlink" title="线程池"></a>线程池</h2><p>为了避免频繁创建和销毁线程所带来的负担，我们可以让创建的线程进行复用。</p>
+<h5 id="jdk支持"><a href="#jdk支持" class="headerlink" title="jdk支持"></a>jdk支持</h5><ul>
+<li>基本用法：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">ExecutorService s=Executors.newFixedThreadPool(<span class="number">3</span>);<span class="comment">//Executors为工厂</span></div><div class="line"><span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;<span class="number">10</span>;i++)&#123;</div><div class="line">   s.execute(<span class="keyword">new</span> Task());<span class="comment">//Task实现了Runnable</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>即在一个3个线程的线程池里复用线程来解决这10个任务。</p>
+<ul>
+<li>4种线程池<br>public static ExecutorService newFixedThreadPool(int nThreads)<br>public static ExecutorService newSingleThreadExecutor()<br>public static ExecutorService newCachedThreadPool()<br>public static ScheduledExecutorServicenewScheduledThreadPool(int corePoolSize)</li>
+<li>jdk8有新增：<br><img src="http://upload-images.jianshu.io/upload_images/2007249-a7244f3841b61282.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="Executors工厂"></li>
+</ul>
+<p>至于这些线程池的说明可以参考其他资料，这里就不赘述了。</p>
+<h5 id="内部实现"><a href="#内部实现" class="headerlink" title="内部实现"></a>内部实现</h5><ul>
+<li>线程池框架结构图<br><img src="http://upload-images.jianshu.io/upload_images/2007249-31c495f28a7a08dc.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="线程池框架结构图"></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newFixedThreadPool</span><span class="params">(<span class="keyword">int</span> nThreads)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ThreadPoolExecutor(nThreads, nThreads,</div><div class="line">                                      <span class="number">0L</span>, TimeUnit.MILLISECONDS,</div><div class="line">                                      <span class="keyword">new</span> LinkedBlockingQueue&lt;Runnable&gt;());</div><div class="line">    &#125;</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newSingleThreadExecutor</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> FinalizableDelegatedExecutorService</div><div class="line">            (<span class="keyword">new</span> ThreadPoolExecutor(<span class="number">1</span>, <span class="number">1</span>,</div><div class="line">                                    <span class="number">0L</span>, TimeUnit.MILLISECONDS,</div><div class="line">                                    <span class="keyword">new</span> LinkedBlockingQueue&lt;Runnable&gt;()));</div><div class="line">    &#125;</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newCachedThreadPool</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ThreadPoolExecutor(<span class="number">0</span>, Integer.MAX_VALUE,</div><div class="line">                                      <span class="number">60L</span>, TimeUnit.SECONDS,</div><div class="line">                                      <span class="keyword">new</span> SynchronousQueue&lt;Runnable&gt;());</div><div class="line">    &#125;</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ScheduledExecutorService <span class="title">newScheduledThreadPool</span><span class="params">(<span class="keyword">int</span> corePoolSize)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ScheduledThreadPoolExecutor(corePoolSize);</div><div class="line">    &#125;</div><div class="line"></div><div class="line"><span class="comment">//jdk8新增</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">newWorkStealingPool</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> ForkJoinPool</div><div class="line">            (Runtime.getRuntime().availableProcessors(),</div><div class="line">             ForkJoinPool.defaultForkJoinWorkerThreadFactory,</div><div class="line">             <span class="keyword">null</span>, <span class="keyword">true</span>);</div><div class="line">    &#125;</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> ExecutorService <span class="title">unconfigurableExecutorService</span><span class="params">(ExecutorService executor)</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (executor == <span class="keyword">null</span>)</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</div><div class="line">        <span class="keyword">return</span> <span class="keyword">new</span> DelegatedExecutorService(executor);</div><div class="line">    &#125;</div></pre></td></tr></table></figure>
+<p>从源码和类图可以看到，Executors类要么是调用ThreadPoolExecutor，要么调用ScheduledThreadPoolExecutor来创建以上4个线程池。（jdk8里面新增的线程池是通过DelegatedExecutorService和ForkJoinPool来创建的。）</p>
+<p>现在我们着重分析ThreadPoolExecutor的实现：</p>
+<p><img src="http://upload-images.jianshu.io/upload_images/2007249-181ab0558c017a73.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="ThreadPoolExecutor构造器"></p>
+<p>从ThreadPoolExecutor构造器中我们可以看到他有几个重载形式，其中包含全部参数的构造器代码如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line">     * Creates a new &#123;<span class="doctag">@code</span> ThreadPoolExecutor&#125; with the given initial</div><div class="line">     * parameters and default thread factory.</div><div class="line">     *</div><div class="line">     * <span class="doctag">@param</span> corePoolSize the number of threads to keep in the pool, even</div><div class="line">     *        if they are idle, unless &#123;<span class="doctag">@code</span> allowCoreThreadTimeOut&#125; is set</div><div class="line">     * <span class="doctag">@param</span> maximumPoolSize the maximum number of threads to allow in the</div><div class="line">     *        pool</div><div class="line">     * <span class="doctag">@param</span> keepAliveTime when the number of threads is greater than</div><div class="line">     *        the core, this is the maximum time that excess idle threads</div><div class="line">     *        will wait for new tasks before terminating.</div><div class="line">     * <span class="doctag">@param</span> unit the time unit for the &#123;<span class="doctag">@code</span> keepAliveTime&#125; argument</div><div class="line">     * <span class="doctag">@param</span> workQueue the queue to use for holding tasks before they are</div><div class="line">     *        executed.  This queue will hold only the &#123;<span class="doctag">@code</span> Runnable&#125;</div><div class="line">     *        tasks submitted by the &#123;<span class="doctag">@code</span> execute&#125; method.</div><div class="line">     * <span class="doctag">@param</span> handler the handler to use when execution is blocked</div><div class="line">     *        because the thread bounds and queue capacities are reached</div><div class="line">     * <span class="doctag">@throws</span> IllegalArgumentException if one of the following holds:&lt;br&gt;</div><div class="line">     *         &#123;<span class="doctag">@code</span> corePoolSize &lt; 0&#125;&lt;br&gt;</div><div class="line">     *         &#123;<span class="doctag">@code</span> keepAliveTime &lt; 0&#125;&lt;br&gt;</div><div class="line">     *         &#123;<span class="doctag">@code</span> maximumPoolSize &lt;= 0&#125;&lt;br&gt;</div><div class="line">     *         &#123;<span class="doctag">@code</span> maximumPoolSize &lt; corePoolSize&#125;</div><div class="line">     * <span class="doctag">@throws</span> NullPointerException if &#123;<span class="doctag">@code</span> workQueue&#125;</div><div class="line">     *         or &#123;<span class="doctag">@code</span> handler&#125; is null</div><div class="line">     */</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">ThreadPoolExecutor</span><span class="params">(<span class="keyword">int</span> corePoolSize,</span></span></div><div class="line">                              <span class="keyword">int</span> maximumPoolSize,</div><div class="line">                              <span class="keyword">long</span> keepAliveTime,</div><div class="line">                              TimeUnit unit,</div><div class="line">                              BlockingQueue&lt;Runnable&gt; workQueue,</div><div class="line">                              RejectedExecutionHandler handler) &#123;</div><div class="line">        <span class="keyword">this</span>(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue,</div><div class="line">             Executors.defaultThreadFactory(), handler);</div><div class="line">    &#125;</div></pre></td></tr></table></figure></p>
+<p>具体参数分析：<br>前面4个参数根据javadoc上的注释已经足够了，这里着重看后面两个参数：</p>
+<ul>
+<li>BlockingQueue<runnable> workQueue<br>这个队列用来存储已提交但并未处理的Runnable对象。至于BlockingQueue有许多类实现其中一个为LinkedBlockingQueue，这个队列如名所述，是一个线程安全的链表实现的队列，也就能够存无限多的Runnable对象，直至资源耗尽。当然也有ArrayListBlockingQueue这个基于数组的实现，也就是等待队列具有最大容量，达到最大容量就执行RejectedExecutionHandler。<br>当然，还有其他形式的队列：<br>1.比如newScheduledThreadPool中，这个队列传入参数就是DelayedWorkQueue()，这个队列是一个特殊的延迟队列，基于堆的数据结构，在取消该延迟任务所需要的查找能力和移除该任务能力都很出色。也因为实现了BlockingQueue，所以具备应当有的线程安全能力。<br>2.在newCachedThreadPool中，这个队列传入参数是SynchronousQueue，这个队列也是一个特殊的BlockingQueue实现，SynchronousQueue没有容量，所提交任务都会直接交于线程池处理。这里的maximumPoolSize被设置为Integer.MAX_VALUE，就是为了防止出现RejectedExecutionHandler。<br>3.PriorityBlockingQueue等。。。</runnable></li>
+</ul>
+<ul>
+<li>RejectedExecutionHandler handler<br>内置的4种拒绝策略实现如下（解释截取对应实现类的javadoc）：<br>1.CallerRunsPolicy:A handler for rejected tasks that runs the rejected task directly in the calling thread of the method,unless the executor has been shut down, in which case the task is discarded.<br>2.DiscardOldestPolicy:A handler for rejected tasks that discards the oldest unhandled request and then retries , unless the executor is shut down, in which case the task is discarded.<br>3.AbortPolicy:A handler for rejected tasks that throws a RejectedExecutionException.<br>4.DiscardPolicy:A handler for rejected tasks that silently discards the rejected task.</li>
+</ul>
+<p><img src="http://upload-images.jianshu.io/upload_images/2007249-1a06977c35a3dbed.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240" alt="RejectedExecutionHandler实现"></p>
+<p>了解了这些参数后再来看下线程池工作的核心代码<br>ThreadPoolExecutor的execute方法：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div></pre></td><td class="code"><pre><div class="line"><span class="comment">/**</span></div><div class="line">     * Executes the given task sometime in the future.  The task</div><div class="line">     * may execute in a new thread or in an existing pooled thread.</div><div class="line">     *</div><div class="line">     * If the task cannot be submitted for execution, either because this</div><div class="line">     * executor has been shutdown or because its capacity has been reached,</div><div class="line">     * the task is handled by the current &#123;<span class="doctag">@code</span> RejectedExecutionHandler&#125;.</div><div class="line">     *</div><div class="line">     * <span class="doctag">@param</span> command the task to execute</div><div class="line">     * <span class="doctag">@throws</span> RejectedExecutionException at discretion of</div><div class="line">     *         &#123;<span class="doctag">@code</span> RejectedExecutionHandler&#125;, if the task</div><div class="line">     *         cannot be accepted for execution</div><div class="line">     * <span class="doctag">@throws</span> NullPointerException if &#123;<span class="doctag">@code</span> command&#125; is null</div><div class="line">     */</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">execute</span><span class="params">(Runnable command)</span> </span>&#123;</div><div class="line">        <span class="keyword">if</span> (command == <span class="keyword">null</span>)</div><div class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> NullPointerException();</div><div class="line">        <span class="comment">/*</span></div><div class="line">         * Proceed in 3 steps:</div><div class="line">         *</div><div class="line">         * 1. If fewer than corePoolSize threads are running, try to</div><div class="line">         * start a new thread with the given command as its first</div><div class="line">         * task.  The call to addWorker atomically checks runState and</div><div class="line">         * workerCount, and so prevents false alarms that would add</div><div class="line">         * threads when it shouldn't, by returning false.</div><div class="line">         *</div><div class="line">         * 2. If a task can be successfully queued, then we still need</div><div class="line">         * to double-check whether we should have added a thread</div><div class="line">         * (because existing ones died since last checking) or that</div><div class="line">         * the pool shut down since entry into this method. So we</div><div class="line">         * recheck state and if necessary roll back the enqueuing if</div><div class="line">         * stopped, or start a new thread if there are none.</div><div class="line">         *</div><div class="line">         * 3. If we cannot queue task, then we try to add a new</div><div class="line">         * thread.  If it fails, we know we are shut down or saturated</div><div class="line">         * and so reject the task.</div><div class="line">         */</div><div class="line">        <span class="keyword">int</span> c = ctl.get();</div><div class="line">        <span class="keyword">if</span> (workerCountOf(c) &lt; corePoolSize) &#123;</div><div class="line">            <span class="keyword">if</span> (addWorker(command, <span class="keyword">true</span>))</div><div class="line">                <span class="keyword">return</span>;</div><div class="line">            c = ctl.get();</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">if</span> (isRunning(c) &amp;&amp; workQueue.offer(command)) &#123;</div><div class="line">            <span class="keyword">int</span> recheck = ctl.get();</div><div class="line">            <span class="keyword">if</span> (! isRunning(recheck) &amp;&amp; remove(command))</div><div class="line">                reject(command);</div><div class="line">            <span class="keyword">else</span> <span class="keyword">if</span> (workerCountOf(recheck) == <span class="number">0</span>)</div><div class="line">                addWorker(<span class="keyword">null</span>, <span class="keyword">false</span>);</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (!addWorker(command, <span class="keyword">false</span>))</div><div class="line">            reject(command);</div><div class="line">    &#125;</div></pre></td></tr></table></figure></p>
+<p>这里对方法内注释做点自己的理解：<br>1.线程池接受到新任务时，若正在运行的线程数量少于corePoolSize，则将任务通过addWork()直接执行并返回；<br>2.当workerCountOf(c) &gt; corePoolSize时，会通过workQueue.offer加入等待队列（会做两次检查），但是加入等待队列时有两种情况：a成功加入时，该任务就等待执行，b加入失败时，通过addWorker(null, false);提交给线程池处理，当线程池达到maximumPoolSize就执行RejectedExecutionHandler；若未达到就分配线程来执行。</p>
+<h5 id="具备异常堆栈线程池"><a href="#具备异常堆栈线程池" class="headerlink" title="具备异常堆栈线程池"></a>具备异常堆栈线程池</h5><p>参考《实战Java高并发程序设计》P113章节</p>
+<h2 id="注解"><a href="#注解" class="headerlink" title="注解"></a>注解</h2><p>1.在衡量并发程序比之前串行程序性能提高多少时，有一个概念：并发程序并不是每一个部分都能并发的，有涉及到临界区时也是和原来串行一样，所以并发程序=并发部分+串行部分。一般来说，并发部分越多，其性能也就越高。而非堵塞这个机制就是提高并发部分的一个手段。</p>
+<h2 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h2><p>JDK API 并发部分<br>JDK源码 线程池部分<br>《Java并发编程实战》<br>《实战Java高并发程序设计》</p>
+<h2 id="图片失效问题"><a href="#图片失效问题" class="headerlink" title="图片失效问题"></a>图片失效问题</h2><p>转去简书看吧。自己维护一个图床好麻烦。<br><a href="http://www.jianshu.com/p/6f70745305e4" target="_blank" rel="external">http://www.jianshu.com/p/6f70745305e4</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/06/08/new-page/" rel="next" title="嗯哼。">
+                <i class="fa fa-chevron-left"></i> 嗯哼。
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.png"
+               alt="theoneLee" />
+          <p class="site-author-name" itemprop="name">theoneLee</p>
+          <p class="site-description motion-element" itemprop="description">顺便发个呆。</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">9</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/theoneLee" target="_blank">
+                  
+                    <i class="fa fa-github"></i> GitHub
+                  
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        <div class="links-of-blogroll motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator">
+            <i class="fa fa-angle-double-up"></i>
+          </div>
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#几个基本概念"><span class="nav-number">1.</span> <span class="nav-text">几个基本概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多线程的协作"><span class="nav-number">2.</span> <span class="nav-text">多线程的协作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#基本操作"><span class="nav-number">2.0.1.</span> <span class="nav-text">基本操作</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#jdk提供的工具"><span class="nav-number">2.0.2.</span> <span class="nav-text">jdk提供的工具</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程池"><span class="nav-number">3.</span> <span class="nav-text">线程池</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#jdk支持"><span class="nav-number">3.0.0.1.</span> <span class="nav-text">jdk支持</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#内部实现"><span class="nav-number">3.0.0.2.</span> <span class="nav-text">内部实现</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#具备异常堆栈线程池"><span class="nav-number">3.0.0.3.</span> <span class="nav-text">具备异常堆栈线程池</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#注解"><span class="nav-number">4.</span> <span class="nav-text">注解</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考资料"><span class="nav-number">5.</span> <span class="nav-text">参考资料</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#图片失效问题"><span class="nav-number">6.</span> <span class="nav-text">图片失效问题</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator">
+            <i class="fa fa-angle-double-down"></i>
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">theoneLee</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+
+  
+
+
+
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=0.5.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=0.5.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=0.5.0"></script>
+
+
+
+  
+  
+<script type="text/javascript" src="/js/src/scrollspy.js?v=0.5.0"></script>
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 1 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = NexT.utils.escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    NexT.motion.middleWares.sidebar = function () {
+      var $tocContent = $('.post-toc-content');
+
+      if (CONFIG.sidebar.display === 'post' || CONFIG.sidebar.display === 'always') {
+        if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+          NexT.utils.displaySidebar();
+        }
+      }
+    };
+  });
+</script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=0.5.0"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+  
+  
+
+  
+
+  
+
+</body>
+</html>
